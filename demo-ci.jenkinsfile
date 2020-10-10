@@ -1,0 +1,123 @@
+@Library('jenkins-library@master') _
+
+def stepsConfig = [
+	skipBuildAndTest: false,
+	skipSonarPublish: false,
+	skipQualityGates: true,
+	skipNexusUpload: false,
+	skipSASTtool: true
+]
+def envConfig = [
+	slaveAgentType: "jdk8node10",
+	jdkEnv: "JDK8",
+	mavenEnv: "MAVEN3.6",
+	// nodeJsEnv: "",
+	// nodeJsPackages: "bower-nexus3-resolver@1.0.2 bower", //grunt grunt-cli gulp gulp-cli angular @angular/cli compass
+	mavenOpts: "-Xmx1g -XX:MaxPermSize=512m",
+	microsoft_teams_webhook_name: "",
+	microsoft_teams_webhook_url: ""
+]
+def scmConfig = [
+	branch: "master",
+	// git_credential_id: "cris_git_credential",
+	url: "https://github.com/djohn99/testnode.git" ,
+	pr_id: "${params.PULL_REQUEST_ID}",
+	from_branch: "${params.PULL_REQUEST_FROM_BRANCH}",
+	pullRequestfromHash: "${params.PULL_REQUEST_FROM_HASH}"
+]
+def notifyBitBucketConfig = [
+	bitbucket_url: "https://github.com/",
+	// project_key: "cris",
+	pom_file_location: "pom.xml",
+    // repo_admin: "cris_git_credential",
+    commit_hash: "${params.PULL_REQUEST_FROM_HASH}"
+]
+def buildAndTestConfig = [
+	build_command: "clean install",
+	skip_test_cases: false,
+	// maven_settings_file: "settings.xml",
+	pom_file_location: "pom.xml",
+	profile_name: "",
+	// pre_build_commands: "",
+	post_build_commands: "",
+	// testResultsLocation: "/src/target/test-results/**/*.xml"
+]
+def sonarConfig = [
+	// sonarInstance: "ekgsonarserver7",
+	// sonarHostUrl: "http://sonardashboard.emirates.com",
+	// branch: "${params.BRANCH_NAME}",
+	// mavenSettingsFile: "settings.xml",
+	// pom_file_location: "src/loyalty/pom.xml",
+	// sonarPluginCommand: "sonar:sonar -Dsonar.host.url=http://sonardashboard.emirates.com -Dsonar.branch.name=${params.PULL_REQUEST_FROM_BRANCH}",
+	// sendSonarDbCredentials: false,
+	// sonarProjectKey: "",
+	// sonarAuthToken: ""
+]
+
+def sastToolConfig = [
+	// branch: "${params.BRANCH_NAME}",
+	// gitProject: "CRIS",
+	// applicationName: "cris-java",
+	// artifactFoldersWithName: [
+	// 	"src/loyalty/loyalty-usermanagement/server/bs-usermanagement-webapp/target/loyalty-usermanagement-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-curationdtls/server/bs-curationdtls-webapp/target/loyalty-curationdtls-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-milesquote/server/bs-milesquote-webapp/target/loyalty-milesquote-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-promoflighteligible/server/bs-promoflighteligible-webapp/target/loyalty-promoflighteligible-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-skywardsenrolment/server/bs-skywardsenrolment-webapp/target/loyalty-skywardsenrolment-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-customerprofile/bs-custprofile-webapp/target/loyalty-custprofile-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-helixfeed/server/bs-helixfeed-webapp/target/loyalty-helixfeed-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-helixfeed-batch/server/bs-helixfeed-batch-webapp/target/loyalty-helixfeed-batch-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-login/server/bs-login-webapp/target/loyalty-login-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-registration/server/bs-registration-webapp/target/loyalty-registration-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-managebr/server/bs-managebr-webapp/target/loyalty-managebr-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-manageredemption/server/bs-manageredemption-webapp/target/loyalty-manageredemption-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-braccrual/server/loyalty-braccrual-webapp/target/loyalty-braccrual-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-membtxndtls/bs-membtxndtls-webapp/target/loyalty-membtxndtls-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-enrolment/server/bs-enrolment-webapp/target/loyalty-enrolment-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-migration/server/bs-migration-webapp/target/loyalty-migration-webapp-1.0.war",
+	// 	"src/loyalty/loyalty-membrevdtls/server/bs-membrevdtls-webapp/target/loyalty-membrevdtls-webapp-1.0.war"
+	// ]
+]
+
+def qualityGateConfig = [
+	// waitTime: 15,
+	// waitTimeType: "MINUTES",
+    // qGateSleepInSeconds: 60,
+	// qualityFailMsg: "EnterpriseJenkins - cris Quality Gates Failed"
+]
+def nexusPublishConfig = [
+	// nexusServerID: "nexus-snapshots",
+	// layout: "default", 
+	// artefactsReleaseURL: "http://repository.emirates.com/repository/cris-artifacts-release/",
+	// nexusCredentialId: "nexus",
+	// pom_file_location: "src/loyalty/pom.xml",
+	// mavenSettingsFile: "settings.xml",
+	// uploadAsCurlTrue: true,
+	// uploadExtraFiles: [
+	// // artifactFoldersWithName: [
+	// 	"loyalty-usermanagement-webapp": "src/loyalty/loyalty-usermanagement/server/bs-usermanagement-webapp/target/loyalty-usermanagement-webapp-1.0.war",
+	// 	"loyalty-curationdtls-webapp": "src/loyalty/loyalty-curationdtls/server/bs-curationdtls-webapp/target/loyalty-curationdtls-webapp-1.0.war",
+	// 	"loyalty-milesquote-webapp": "src/loyalty/loyalty-milesquote/server/bs-milesquote-webapp/target/loyalty-milesquote-webapp-1.0.war",
+	// 	"loyalty-promoflighteligible-webapp": "src/loyalty/loyalty-promoflighteligible/server/bs-promoflighteligible-webapp/target/loyalty-promoflighteligible-webapp-1.0.war",
+	// 	"loyalty-skywardsenrolment-webapp": "src/loyalty/loyalty-skywardsenrolment/server/bs-skywardsenrolment-webapp/target/loyalty-skywardsenrolment-webapp-1.0.war",
+	// 	"loyalty-custprofile-webapp": "src/loyalty/loyalty-customerprofile/bs-custprofile-webapp/target/loyalty-custprofile-webapp-1.0.war",
+	// 	"loyalty-helixfeed-webapp": "src/loyalty/loyalty-helixfeed/server/bs-helixfeed-webapp/target/loyalty-helixfeed-webapp-1.0.war",
+	// 	"loyalty-helixfeed-batch-webapp": "src/loyalty/loyalty-helixfeed-batch/server/bs-helixfeed-batch-webapp/target/loyalty-helixfeed-batch-webapp-1.0.war",
+	// 	"loyalty-login-webapp": "src/loyalty/loyalty-login/server/bs-login-webapp/target/loyalty-login-webapp-1.0.war",
+	// 	"loyalty-registration-webapp": "src/loyalty/loyalty-registration/server/bs-registration-webapp/target/loyalty-registration-webapp-1.0.war",
+	// 	"loyalty-managebr-webapp": "src/loyalty/loyalty-managebr/server/bs-managebr-webapp/target/loyalty-managebr-webapp-1.0.war",
+	// 	"loyalty-manageredemption-webapp": "src/loyalty/loyalty-manageredemption/server/bs-manageredemption-webapp/target/loyalty-manageredemption-webapp-1.0.war",
+	// 	"loyalty-braccrual-webapp": "src/loyalty/loyalty-braccrual/server/loyalty-braccrual-webapp/target/loyalty-braccrual-webapp-1.0.war",
+	// 	"loyalty-membtxndtls-webapp": "src/loyalty/loyalty-membtxndtls/bs-membtxndtls-webapp/target/loyalty-membtxndtls-webapp-1.0.war",
+	// 	"loyalty-enrolment-webapp": "src/loyalty/loyalty-enrolment/server/bs-enrolment-webapp/target/loyalty-enrolment-webapp-1.0.war",
+	// 	"loyalty-migration-webapp": "src/loyalty/loyalty-migration/server/bs-migration-webapp/target/loyalty-migration-webapp-1.0.war",
+	// 	"loyalty-membrevdtls-webapp": "src/loyalty/loyalty-membrevdtls/server/bs-membrevdtls-webapp/target/loyalty-membrevdtls-webapp-1.0.war"
+	// ]
+]
+
+
+Standard_JavaCI_pipeline(
+	stepsConfig, envConfig, scmConfig, 
+	buildAndTestConfig, sonarConfig, 
+	qualityGateConfig, nexusPublishConfig, sastToolConfig, notifyBitBucketConfig
+)

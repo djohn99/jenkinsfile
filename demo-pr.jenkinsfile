@@ -1,0 +1,91 @@
+@Library('jenkins-library@feature/cris-devops') _
+
+def stepsConfig = [
+	skipBuildAndTest: false,
+	skipSonarPublish: false,
+	skipQualityGates: true,
+	skipNexusUpload: true,
+	skipSASTtool: true
+]
+def envConfig = [
+	slaveAgentType: "rhel-jenkins-slave",
+	jdkEnv: "JDK8",
+	mavenEnv: "MAVEN3.6",
+	// nodeJsEnv: "",
+	// nodeJsPackages: "bower-nexus3-resolver@1.0.2 bower", //grunt grunt-cli gulp gulp-cli angular @angular/cli compass
+	mavenOpts: "-Xmx1g -XX:MaxPermSize=512m",
+	microsoft_teams_webhook_name: "",
+	microsoft_teams_webhook_url: ""
+]
+def scmConfig = [
+	branch: "develop",
+	// git_credential_id: "cris_git_credential",
+	url: "https://git.emirates.com/scm/cris/java.git" ,
+	pr_id: "${params.PULL_REQUEST_ID}",
+	from_branch: "${params.PULL_REQUEST_FROM_BRANCH}",
+	pullRequestfromHash: "${params.PULL_REQUEST_FROM_HASH}"
+]
+def notifyBitBucketConfig = [
+	bitbucket_url: "https://git.emirates.com/",
+	project_key: "cris",
+	pom_file_location: "src/loyalty/pom.xml",
+    // repo_admin: "cris_git_credential",
+    commit_hash: "${params.PULL_REQUEST_FROM_HASH}"
+]
+def buildAndTestConfig = [
+	build_command: "clean install",
+	skip_test_cases: true,
+	maven_settings_file: "settings.xml",
+	pom_file_location: "src/loyalty/pom.xml",
+	profile_name: "",
+	pre_build_commands: "",
+	post_build_commands: ""
+	// testResultsLocation: "/src/target/test-results/**/*.xml"
+]
+def sonarConfig = [
+	sonarInstance: "ekgsonarserver7",
+	sonarHostUrl: "http://sonardashboard.emirates.com",
+	mavenSettingsFile: "settings.xml",
+	pom_file_location: "src/loyalty/pom.xml",
+	// sonarPluginCommand: "sonar:sonar -Dsonar.projectName=A-JV-SPN-ASN-EG4.3.4-BRSR-S.A.CRIS",
+	sonarPluginCommand: "sonar:sonar -Dsonar.host.url=http://sonardashboard.emirates.com -Dsonar.branch.name=${params.PULL_REQUEST_FROM_BRANCH}",
+	sendSonarDbCredentials: false,
+	sonarProjectKey: "",
+	sonarAuthToken: ""
+]
+def sastToolConfig = [
+	branch: "${params.BRANCH_NAME}",
+	gitProject: "CRIS",
+	applicationName: "cris-java",
+	artifactFoldersWithName: ["src/loyalty/target/*.jar"]
+]
+def qualityGateConfig = [
+	waitTime: 15,
+	waitTimeType: "MINUTES",
+    qGateSleepInSeconds: 60,
+	skipBitbucketQGComment: false,
+	qualityFailMsg: "EnterpriseJenkins - cris Quality Gates Failed"
+]
+def nexusPublishConfig = [
+	nexusServerID: "nexus-snapshots",
+	layout: "default", 
+	artefactsReleaseURL: "http://repository.emirates.com/repository/cris-artifacts-release/",
+	nexusCredentialId: "nexus",
+	pom_file_location: "src/loyalty/pom.xml",
+	mavenSettingsFile: "settings.xml",
+	// uploadAsCurlTrue: true,
+	uploadExtraFiles: [
+		"loyalty": "src/loyalty/target/*.jar"
+	]
+	// pom_files_locations: [
+	// 	"dnsignincommon/server/dw-dnsignincommon-webapp/pom.xml",
+	// 	"dnatasignin/server/dw-dnatasignin-webapp/pom.xml",
+	// 	"irismw/middleware/iw-iris-mw-webapp/pom.xml",
+	// 	"notification/server/nw-notification-webapp/pom.xml"
+	// ]
+]
+Standard_JavaCI_pipeline(
+	stepsConfig, envConfig, scmConfig, 
+	buildAndTestConfig, sonarConfig, 
+	qualityGateConfig, nexusPublishConfig, sastToolConfig, notifyBitBucketConfig
+)
