@@ -14,8 +14,8 @@ def envConfig = [
 	// nodeJsEnv: "",
 	// nodeJsPackages: "bower-nexus3-resolver@1.0.2 bower", //grunt grunt-cli gulp gulp-cli angular @angular/cli compass
 	mavenOpts: "-Xmx1g -XX:MaxPermSize=512m",
-	microsoft_teams_webhook_name: "",
-	microsoft_teams_webhook_url: ""
+	microsoft_teams_webhook_name: "kdconsult",
+	microsoft_teams_webhook_url: "https://teams.microsoft.com/l/team/19%3ac250d1d2a8534cabbee5eb5735b725a3%40thread.tacv2/conversations?groupId=2f63e8d3-2a5b-4d5b-890d-918da5cefb76&tenantId=cfd7efc0-a05b-402e-bf09-5d28be80feb2"
 ]
 def scmConfig = [
 	branch: "master",
